@@ -2,8 +2,6 @@
 
 Praktikum dijalankan di Ubuntu WSL dari `~/docker-lab/bab-5`.
 
-> **Keamanan:** beberapa screenshot memperlihatkan kredensial dan output `docker compose config`. Samarkan sebelum unggah ke GitHub. Jika kredensial tersebut masih digunakan, ganti terlebih dahulu. Jangan commit `.env` atau file dump.
-
 ## 1. Siapkan direktori
 
 ![Direktori praktikum](images/bab-05/01-direktori.png)
