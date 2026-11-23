@@ -2,6 +2,8 @@
 
 Praktikum dijalankan pada Windows dengan Docker Desktop dan WSL 2, dari direktori `~/docker-lab/bab-7`. Prometheus mengumpulkan metrics dari Node Exporter dan cAdvisor, lalu Grafana menampilkannya dalam dashboard.
 
+> **Batas lingkungan:** pada Docker Desktop/WSL 2, Node Exporter dan cAdvisor terutama mengamati VM Linux tempat Docker Engine berjalan, bukan seluruh resource Windows.
+
 ```
 Node Exporter --(metrics host)----+
                                   v
@@ -244,49 +246,65 @@ Script melaporkan Prometheus dan Grafana siap, tetapi kemudian menghasilkan `[FA
 Halaman tersebut membuktikan antarmuka Grafana dapat dibuka, tetapi belum membuktikan dashboard berisi data.
 ## 17. Jalankan query PromQL
 
-Query dapat dijalankan dari Prometheus Graph atau Grafana Explore:
+Jalankan query satu per satu melalui Prometheus Graph atau Grafana Explore. Setelah memasukkan query, pilih **Execute** dan amati hasilnya.
+
+### 17.1 Periksa semua target
 
 ```promql
 up
 ```
 
+![Query up pada Prometheus](images/bab-07/32-query-up-prometheus.png)
+
+Hasil menampilkan tiga target - Prometheus, Node Exporter, dan cAdvisor - masing-masing bernilai `1`. Artinya Prometheus berhasil scrape ketiga target pada waktu pemeriksaan. Nilai `up = 1` tidak membuktikan fungsi aplikasi atau seluruh dashboard bekerja.
+
+### 17.2 Periksa penggunaan CPU host
+
 ```promql
 instance:node_cpu_utilisation:ratio_rate5m * 100
 ```
+
+![Query CPU host](images/bab-07/33-query-host-cpu.png)
+
+Hasil query menampilkan penggunaan CPU host sekitar `0.56%` pada saat screenshot diambil.
+
+![Grafik CPU host di Grafana Explore](images/bab-07/34-grafana-host-cpu.png)
+
+Grafik di Grafana Explore menunjukkan perubahan CPU sepanjang rentang waktu yang dipilih. Angka pada satu titik merupakan snapshot, sedangkan grafik memperlihatkan rangkaian sampel.
+
+### 17.3 Periksa penggunaan memori host
 
 ```promql
 instance:node_memory_utilisation:ratio * 100
 ```
 
+![Query memori host](images/bab-07/35-query-host-memory.png)
+
+Hasil query menunjukkan penggunaan memori host sekitar `8.98%` pada waktu screenshot.
+
+![Grafik memori host di Grafana Explore](images/bab-07/36-grafana-host-memory.png)
+
+Grafik memperlihatkan perubahan penggunaan memori selama rentang waktu yang dipilih.
+
+### 17.4 Periksa penggunaan CPU container
+
 ```promql
 topk(5, container:cpu_usage_cores:rate1m)
 ```
+
+![Query CPU container tidak menghasilkan data](images/bab-07/37-query-container-cpu-empty.png)
+
+Hasil menunjukkan `Empty query result`, yaitu tidak ada series yang cocok dengan query pada waktu tersebut. Ini bukan bukti penggunaan CPU bernilai nol.
+
+### 17.5 Periksa penggunaan memori container
 
 ```promql
 topk(5, container:memory_working_set_bytes:sum)
 ```
 
-`up = 1` berarti Prometheus berhasil mengambil metric dari target pada saat scrape. Itu tidak membuktikan aplikasi memenuhi fungsi bisnis. Query sukses tetapi tidak menghasilkan series juga bukan berarti nilainya nol.
+![Query memori container tidak menghasilkan data](images/bab-07/38-query-container-memory-empty.png)
 
-Pada screenshot query `up`, tiga series muncul untuk Node Exporter, Prometheus, dan cAdvisor dengan nilai `1`. Ini menunjukkan ketiga target berhasil discrape pada waktu query tersebut. Hasil itu berbeda dengan pemeriksaan script yang sebelumnya hanya menghitung satu target; kedua screenshot dapat berasal dari waktu yang berbeda atau hasil parsing script yang tidak menghitung semua target sebagaimana dimaksud. Gunakan halaman Targets/API serta query `up` pada waktu yang sama untuk memastikan status aktual.
-
-![Query up pada Prometheus](images/bab-07/32-query-up-prometheus.png)
-
-Query CPU host `instance:node_cpu_utilisation:ratio_rate5m * 100` menampilkan series Node Exporter dengan nilai sekitar `0.56` persen pada snapshot yang terlihat. Query memori `instance:node_memory_utilisation:ratio * 100` menampilkan sekitar `8.98` persen. Nilai tersebut adalah pengamatan pada waktu screenshot, bukan ringkasan performa sepanjang praktikum.
-
-![Query CPU host](images/bab-07/33-query-host-cpu.png)
-
-![Query CPU host di Grafana Explore](images/bab-07/34-grafana-host-cpu.png)
-
-![Query memori host](images/bab-07/35-query-host-memory.png)
-
-![Query memori host di Grafana Explore](images/bab-07/36-grafana-host-memory.png)
-
-Pada screenshot query `topk` untuk CPU dan memori container, Prometheus menampilkan `Empty query result`. Artinya query tidak menemukan series yang cocok pada saat itu. Hal ini tidak boleh ditafsirkan sebagai penggunaan CPU atau memori container nol. cAdvisor di Docker Desktop/WSL 2 mungkin tidak mengekspos metric atau label `name` yang dibutuhkan recording rule. Karena query `up` untuk cAdvisor terlihat bernilai 1, endpoint cAdvisor dapat discrape, tetapi itu sendiri belum menjamin metric container yang diinginkan tersedia.
-
-![Query CPU container kosong](images/bab-07/37-query-container-cpu-empty.png)
-
-![Query memori container kosong](images/bab-07/38-query-container-memory-empty.png)
+Hasil ini juga kosong. Kedua query container yang kosong menunjukkan belum ada data yang cocok dengan rule dan label yang digunakan pada saat pemeriksaan. Karena query `up` untuk cAdvisor bernilai `1`, endpoint cAdvisor dapat di-scrape, tetapi itu tidak menjamin metric container yang dibutuhkan tersedia.
 
 ## 18. Uji beban container
 
@@ -376,6 +394,7 @@ Integrasi ini bersifat opsional. Tujuannya menampilkan log PostgreSQL Bab 6 di G
 ![Script connect-bab6.sh bagian 3](images/bab-07/48-connect-bab6-script-3.png)
 
 Script memakai `BAB6_DIR` jika lokasi Bab 6 berbeda dari default `../bab-6`.
+
 ### 20.2 Beri izin dan validasi sintaks
 
 ![Permission dan pemeriksaan sintaks connect-bab6.sh](images/bab-07/49-connect-bab6-script-validation.png)
