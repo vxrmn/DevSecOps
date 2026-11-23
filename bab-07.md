@@ -437,6 +437,7 @@ Setelah pengujian, lepaskan container PostgreSQL Bab 6 dari network monitoring B
 ```
 
 ![Memutus network integrasi Bab 6](images/bab-07/54-disconnect-bab6-network.png)
+
 ## 21. Hasil dan batasan
 
 - Prometheus mengumpulkan metrics dari dirinya sendiri, Node Exporter, dan cAdvisor melalui jaringan Compose.
