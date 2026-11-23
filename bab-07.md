@@ -375,8 +375,7 @@ Integrasi ini bersifat opsional. Tujuannya menampilkan log PostgreSQL Bab 6 di G
 
 ![Script connect-bab6.sh bagian 3](images/bab-07/48-connect-bab6-script-3.png)
 
-Script memakai `BAB6_DIR` jika lokasi Bab 6 berbeda dari default `../bab-6`. Credential dibaca dari file environment lokal dan tidak perlu dicetak atau dimasukkan ke laporan.
-
+Script memakai `BAB6_DIR` jika lokasi Bab 6 berbeda dari default `../bab-6`.
 ### 20.2 Beri izin dan validasi sintaks
 
 ![Permission dan pemeriksaan sintaks connect-bab6.sh](images/bab-07/49-connect-bab6-script-validation.png)
