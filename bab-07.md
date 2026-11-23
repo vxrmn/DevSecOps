@@ -2,8 +2,6 @@
 
 Praktikum dijalankan pada Windows dengan Docker Desktop dan WSL 2, dari direktori `~/docker-lab/bab-7`. Prometheus mengumpulkan metrics dari Node Exporter dan cAdvisor, lalu Grafana menampilkannya dalam dashboard.
 
-> **Batas lingkungan:** pada Docker Desktop/WSL 2, Node Exporter dan cAdvisor terutama mengamati VM Linux tempat Docker Engine berjalan, bukan seluruh resource Windows.
-
 ```
 Node Exporter --(metrics host)----+
                                   v
